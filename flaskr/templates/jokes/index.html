@@ -5,7 +5,7 @@
 {% block content %}
 <div class="joke-container">
   <div class="page-header">
-    <h1>{% block title %}Master of Jokes 🎭{% endblock %}</h1>
+    <h1>{% block title %}Master of Jokes{% endblock %}</h1>
     {% if g.user %}
       <a class="btn-new-joke" href="{{ url_for('jokes.leave') }}">+ New Joke</a>
     {% endif %}
@@ -206,6 +206,52 @@ document.addEventListener('DOMContentLoaded', function() {
       stars.forEach(s => s.classList.remove('hovered'));
     });
   });
+  
+  // Update card z-index based on scroll position
+  updateCardStacking();
+  window.addEventListener('scroll', updateCardStacking);
 });
+
+function updateCardStacking() {
+  const cards = document.querySelectorAll('.joke-card');
+  const scrollY = window.scrollY;
+  const windowHeight = window.innerHeight;
+  const viewportMiddle = scrollY + windowHeight / 2;
+  
+  cards.forEach((card, index) => {
+    const cardRect = card.getBoundingClientRect();
+    const cardTop = scrollY + cardRect.top;
+    const cardBottom = cardTop + cardRect.height;
+    const cardMiddle = cardTop + cardRect.height / 2;
+    
+    // Calculate distance from viewport middle
+    const distanceFromMiddle = Math.abs(cardMiddle - viewportMiddle);
+    
+    // Calculate z-index based on position
+    // Cards closer to middle get higher z-index
+    const baseZIndex = 100;
+    const zIndex = baseZIndex + cards.length - Math.floor(distanceFromMiddle / 50);
+    card.style.zIndex = zIndex;
+    
+    // Add classes based on position relative to viewport middle
+    card.classList.remove('in-view', 'above-view', 'below-view');
+    
+    if (cardMiddle < viewportMiddle - 100) {
+      card.classList.add('above-view');
+    } else if (cardMiddle > viewportMiddle + 100) {
+      card.classList.add('below-view');
+    } else {
+      card.classList.add('in-view');
+    }
+    
+    // Add slight rotation and translation for depth effect
+    const rotation = (cardMiddle - viewportMiddle) / windowHeight * 3; // Max 3 degrees
+    const translateY = (cardMiddle - viewportMiddle) / windowHeight * 10; // Max 10px
+    
+    if (!card.matches(':hover')) {
+      card.style.transform = `translateY(${translateY}px) rotateX(${-rotation}deg) scale(${card.classList.contains('in-view') ? 1 : 0.97})`;
+    }
+  });
+}
 </script>
 {% endblock %}
