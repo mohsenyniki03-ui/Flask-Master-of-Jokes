@@ -1,47 +1,46 @@
 html {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff9a56 0%, #ffd868 50%, #ff9a56 100%);
   background-attachment: fixed;
-  padding: 1rem;
   min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  max-width: 960px;
-  margin: 0 auto;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Comic Sans MS', 'Trebuchet MS', cursive, sans-serif;
-  color: #ff6b6b;
+  color: #d9534f;
   margin: 1rem 0;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 a {
-  color: #4ecdc4;
+  color: #e67e22;
   transition: color 0.3s;
 }
 
 a:hover {
-  color: #45b7aa;
+  color: #d35400;
 }
 
 hr {
   border: none;
-  border-top: 2px solid #ffe66d;
+  border-top: 2px solid #f39c12;
 }
 
 nav {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #e74c3c 0%, #ff6b6b 100%);
   display: flex;
   align-items: center;
-  padding: 0 0.5rem;
-  border-radius: 12px 12px 0 0;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 0 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
 nav h1 {
@@ -87,8 +86,10 @@ nav ul li a:hover {
 }
 
 .content {
-  padding: 0 1rem 1rem;
-  background: linear-gradient(180deg, #fff 0%, #fef9f3 100%);
+  padding: 2rem;
+  background: transparent;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .content > header {
@@ -257,8 +258,8 @@ input[type=submit] {
 
 .form-group input:focus {
   outline: none;
-  border-color: #4ecdc4;
-  box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.2);
+  border-color: #f39c12;
+  box-shadow: 0 0 0 4px rgba(243, 156, 18, 0.2);
   transform: scale(1.02);
 }
 
@@ -276,7 +277,7 @@ input[type=submit] {
 .btn-primary {
   width: 100%;
   padding: 0.875rem;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #ff9a56 0%, #e67e22 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -285,15 +286,15 @@ input[type=submit] {
   cursor: pointer;
   transition: all 0.3s;
   margin-top: 0.5rem;
-  box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+  box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+  background: linear-gradient(135deg, #e67e22 0%, #ff9a56 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(245, 87, 108, 0.5);
+  box-shadow: 0 6px 20px rgba(230, 126, 34, 0.5);
 }
 
 .btn-primary:active {
@@ -314,10 +315,10 @@ input[type=submit] {
 .flash-success {
   margin: 1rem 0;
   padding: 1rem;
-  background: linear-gradient(135deg, #a8e6cf 0%, #55efc4 100%);
-  border: 2px solid #00b894;
+  background: linear-gradient(135deg, #ffd89b 0%, #ffcc70 100%);
+  border: 2px solid #f39c12;
   border-radius: 8px;
-  color: #00695c;
+  color: #d35400;
   font-weight: 600;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -330,14 +331,14 @@ input[type=submit] {
 }
 
 .auth-links a {
-  color: #f5576c;
+  color: #e67e22;
   text-decoration: none;
   font-weight: 700;
   transition: all 0.3s;
 }
 
 .auth-links a:hover {
-  color: #f093fb;
+  color: #ff9a56;
   text-decoration: underline;
   transform: scale(1.05);
   display: inline-block;
@@ -465,7 +466,7 @@ input[type=submit] {
   bottom: 0;
   border-radius: 20px;
   padding: 4px;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #ffe66d 100%);
+  background: linear-gradient(135deg, #ff9a56 0%, #e67e22 50%, #ffd868 100%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -557,8 +558,8 @@ input[type=submit] {
 }
 
 .jokes-list .joke-card:nth-child(4)::after {
-  background: linear-gradient(135deg, #a8e6cf 0%, #55efc4 100%);
-  color: #00695c;
+  background: linear-gradient(135deg, #ffd89b 0%, #ffcc70 100%);
+  color: #d35400;
   width: 40px;
   height: 40px;
   font-size: 1.2rem;
@@ -621,8 +622,8 @@ input[type=submit] {
 
 .joke-author {
   font-weight: 700;
-  color: #f5576c;
-  background: #ffe66d;
+  color: #e67e22;
+  background: #ffd868;
   padding: 2px 8px;
   border-radius: 12px;
   text-decoration: none;
@@ -665,14 +666,14 @@ input[type=submit] {
 }
 
 .btn-edit {
-  background: linear-gradient(135deg, #4ecdc4 0%, #44a3f7 100%);
+  background: linear-gradient(135deg, #ffa726 0%, #ff9800 100%);
   color: white;
 }
 
 .btn-edit:hover {
-  background: linear-gradient(135deg, #44a3f7 0%, #4ecdc4 100%);
+  background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(78, 205, 196, 0.4);
+  box-shadow: 0 6px 15px rgba(255, 152, 0, 0.4);
 }
 
 .btn-delete {
@@ -760,27 +761,29 @@ input[type=submit] {
   align-items: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
+  border-bottom: 2px dashed #ffd868;
 }
 
 .btn-new-joke {
-  background: linear-gradient(135deg, #a8e6cf 0%, #55efc4 100%);
-  color: #00695c;
+  background: linear-gradient(135deg, #52d681 0%, #3dc46d 100%);
+  color: white;
   padding: 0.85rem 1.8rem;
   border-radius: 25px;
   text-decoration: none;
   font-weight: 700;
   transition: all 0.3s;
-  box-shadow: 0 4px 15px rgba(85, 239, 196, 0.4);
+  box-shadow: 0 4px 15px rgba(82, 214, 129, 0.5);
   font-size: 1.1rem;
   text-transform: uppercase;
   letter-spacing: 1px;
+  border: 2px solid #3dc46d;
 }
 
 .btn-new-joke:hover {
-  background: linear-gradient(135deg, #55efc4 0%, #a8e6cf 100%);
+  background: linear-gradient(135deg, #3dc46d 0%, #2fb85e 100%);
   transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 6px 20px rgba(85, 239, 196, 0.6);
-  color: #004d40;
+  box-shadow: 0 6px 25px rgba(82, 214, 129, 0.7);
+  border-color: #2fb85e;
 }
 
 textarea {
@@ -850,8 +853,8 @@ textarea {
   position: fixed;
   top: 20px;
   right: 20px;
-  background: linear-gradient(135deg, #a8e6cf 0%, #55efc4 100%);
-  color: #00695c;
+  background: linear-gradient(135deg, #ffd89b 0%, #ffcc70 100%);
+  color: #d35400;
   padding: 1rem 1.5rem;
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -912,13 +915,13 @@ textarea {
 }
 
 .comments-list::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #a8e6cf 0%, #55efc4 100%);
+  background: linear-gradient(135deg, #ffd89b 0%, #ffcc70 100%);
   border-radius: 10px;
 }
 
 .comment {
   background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-  border-left: 3px solid #a8e6cf;
+  border-left: 3px solid #f39c12;
   padding: 0.5rem;
   margin-bottom: 0.4rem;
   border-radius: 6px;
@@ -926,7 +929,7 @@ textarea {
 }
 
 .comment:hover {
-  border-left-color: #55efc4;
+  border-left-color: #e67e22;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transform: translateX(5px);
 }
@@ -994,8 +997,8 @@ textarea {
 
 .comment-input:focus {
   outline: none;
-  border-color: #a8e6cf;
-  box-shadow: 0 0 0 3px rgba(168, 230, 207, 0.2);
+  border-color: #f39c12;
+  box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.2);
 }
 
 .comment-form-footer {
@@ -1013,26 +1016,27 @@ textarea {
 }
 
 .btn-comment {
-  background: linear-gradient(135deg, #a8e6cf 0%, #55efc4 100%);
-  color: #00695c;
+  background: linear-gradient(135deg, #52d681 0%, #3dc46d 100%);
+  color: white;
   border: none;
   padding: 0.4rem 0.9rem;
   border-radius: 18px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(168, 230, 207, 0.4);
+  box-shadow: 0 4px 12px rgba(82, 214, 129, 0.4);
   font-size: 0.85rem;
 }
 
 .btn-comment:hover {
+  background: linear-gradient(135deg, #3dc46d 0%, #2fb85e 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(168, 230, 207, 0.6);
+  box-shadow: 0 6px 20px rgba(82, 214, 129, 0.6);
 }
 
 .btn-show-comment-form {
-  background: linear-gradient(135deg, #a8e6cf 0%, #55efc4 100%);
-  color: #00695c;
+  background: linear-gradient(135deg, #52d681 0%, #3dc46d 100%);
+  color: white;
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 18px;
@@ -1040,15 +1044,15 @@ textarea {
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(168, 230, 207, 0.3);
+  box-shadow: 0 4px 12px rgba(82, 214, 129, 0.3);
   width: 100%;
   margin-bottom: 0;
 }
 
 .btn-show-comment-form:hover {
-  background: linear-gradient(135deg, #55efc4 0%, #a8e6cf 100%);
+  background: linear-gradient(135deg, #3dc46d 0%, #2fb85e 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(168, 230, 207, 0.5);
+  box-shadow: 0 6px 20px rgba(82, 214, 129, 0.5);
 }
 
 .btn-cancel-comment {
@@ -1100,11 +1104,11 @@ textarea {
 
 /* Profile Header Card */
 .profile-header-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
   border-radius: 20px;
   padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 10px 40px rgba(230, 126, 34, 0.4);
   display: flex;
   align-items: center;
   gap: 2rem;
@@ -1119,13 +1123,13 @@ textarea {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+  background: linear-gradient(135deg, #fff5e1 0%, #ffd700 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 3rem;
   font-weight: 700;
-  color: #667eea;
+  color: #e67e22;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
   border: 5px solid white;
 }
@@ -1190,7 +1194,7 @@ textarea {
 .stat-value {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #667eea;
+  color: #e67e22;
   margin: 0.5rem 0;
 }
 
@@ -1209,7 +1213,7 @@ textarea {
 
 .section-title {
   font-size: 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1225,18 +1229,18 @@ textarea {
 }
 
 .profile-joke-card {
-  background: linear-gradient(135deg, #ffffff 0%, #fef9f3 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #fff5e1 100%);
   border-radius: 16px;
   padding: 1.5rem;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  border-left: 5px solid #667eea;
+  border-left: 5px solid #e67e22;
 }
 
 .profile-joke-card:hover {
   transform: translateX(5px);
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
-  border-left-color: #764ba2;
+  border-left-color: #d35400;
 }
 
 .profile-joke-header {
@@ -1249,7 +1253,7 @@ textarea {
 
 .profile-joke-title {
   font-size: 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1313,25 +1317,25 @@ textarea {
 }
 
 .btn-view {
-  background: linear-gradient(135deg, #a8e6cf 0%, #55efc4 100%);
-  color: #00695c;
+  background: linear-gradient(135deg, #ffd89b 0%, #ffcc70 100%);
+  color: #d35400;
 }
 
 .btn-view:hover {
-  background: linear-gradient(135deg, #55efc4 0%, #a8e6cf 100%);
+  background: linear-gradient(135deg, #ffcc70 0%, #ffd89b 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(168, 230, 207, 0.4);
+  box-shadow: 0 4px 12px rgba(255, 204, 112, 0.4);
 }
 
 .btn-edit-small {
-  background: linear-gradient(135deg, #4ecdc4 0%, #44a3f7 100%);
+  background: linear-gradient(135deg, #ffa726 0%, #ff9800 100%);
   color: white;
 }
 
 .btn-edit-small:hover {
-  background: linear-gradient(135deg, #44a3f7 0%, #4ecdc4 100%);
+  background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
 }
 
 .empty-jokes {
