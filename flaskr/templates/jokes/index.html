@@ -133,21 +133,30 @@ function reorderJokes() {
       return ratingB - ratingA; // Higher rating first
     }
     
-    // If ratings are equal, maintain original order (by created date)
-    return 0;
+    // If ratings are equal, sort by created date (newer first)
+    const dateA = new Date(a.dataset.created);
+    const dateB = new Date(b.dataset.created);
+    return dateB - dateA;
   });
   
-  // Animate the reordering
-  jokeCards.forEach((card, index) => {
-    card.style.order = index;
-    card.style.animation = 'none';
+  // Add fade out effect
+  jokeCards.forEach(card => {
+    card.style.opacity = '0.3';
+    card.style.transform = card.style.transform + ' scale(0.95)';
+  });
+  
+  // Re-append in new order after brief delay
+  setTimeout(() => {
+    jokeCards.forEach(card => jokesContainer.appendChild(card));
+    
+    // Fade back in with cascading effect
     setTimeout(() => {
-      card.style.animation = 'slideIn 0.5s ease-out';
-    }, index * 50);
-  });
-  
-  // Re-append in new order
-  jokeCards.forEach(card => jokesContainer.appendChild(card));
+      jokeCards.forEach(card => {
+        card.style.opacity = '';
+        card.style.transform = '';
+      });
+    }, 100);
+  }, 300);
 }
 
 function showMessage(text, isError = false) {
