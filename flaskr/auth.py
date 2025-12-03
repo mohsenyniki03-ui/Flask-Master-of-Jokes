@@ -155,6 +155,7 @@ def logout():
     return redirect(url_for("index"))
 
 
+
 @bp.route("/profile/<username>")
 def profile(username):
     """Display user profile with stats and jokes."""
