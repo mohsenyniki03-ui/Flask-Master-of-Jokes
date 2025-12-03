@@ -153,3 +153,73 @@ def logout():
     """Clear the current session, including the stored user id."""
     session.clear()
     return redirect(url_for("index"))
+
+
+@bp.route("/profile/<username>")
+def profile(username):
+    """Display user profile with stats and jokes."""
+    db = get_db()
+    
+    # Fetch user by username (email) or nickname
+    user = db.execute(
+        "SELECT * FROM user WHERE username = ? OR nickname = ?", 
+        (username, username)
+    ).fetchone()
+    
+    if user is None:
+        flash(f"User '{username}' not found.")
+        return redirect(url_for("index"))
+    
+    # Get user's jokes with ratings
+    user_jokes = db.execute(
+        """SELECT p.*, u.nickname as username, 
+           COUNT(DISTINCT r.id) as rating_count,
+           COALESCE(AVG(r.rating), 0) as avg_rating
+           FROM post p
+           JOIN user u ON p.author_id = u.id
+           LEFT JOIN rating r ON p.id = r.post_id
+           WHERE p.author_id = ?
+           GROUP BY p.id
+           ORDER BY p.created DESC""",
+        (user["id"],)
+    ).fetchall()
+    
+    # Calculate engagement metrics
+    total_jokes = len(user_jokes)
+    total_ratings = db.execute(
+        """SELECT COUNT(*) as count FROM rating r
+           JOIN post p ON r.post_id = p.id
+           WHERE p.author_id = ?""",
+        (user["id"],)
+    ).fetchone()["count"]
+    
+    total_comments = db.execute(
+        """SELECT COUNT(*) as count FROM comment c
+           JOIN post p ON c.post_id = p.id
+           WHERE p.author_id = ?""",
+        (user["id"],)
+    ).fetchone()["count"]
+    
+    # Calculate average rating across all jokes
+    avg_rating_result = db.execute(
+        """SELECT COALESCE(AVG(r.rating), 0) as avg_rating
+           FROM rating r
+           JOIN post p ON r.post_id = p.id
+           WHERE p.author_id = ?""",
+        (user["id"],)
+    ).fetchone()
+    overall_avg_rating = round(avg_rating_result["avg_rating"], 2)
+    
+    # Engagement score: weighted combination of jokes, ratings, comments
+    engagement_score = (total_jokes * 10) + (total_ratings * 2) + (total_comments * 3)
+    
+    return render_template(
+        "auth/profile.html",
+        profile_user=user,
+        user_jokes=user_jokes,
+        total_jokes=total_jokes,
+        total_ratings=total_ratings,
+        total_comments=total_comments,
+        overall_avg_rating=overall_avg_rating,
+        engagement_score=engagement_score
+    )

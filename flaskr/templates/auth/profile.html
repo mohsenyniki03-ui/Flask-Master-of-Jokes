@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="profile-container">
+  <!-- Profile Header Card -->
+  <div class="profile-header-card">
+    <div class="profile-avatar">
+      <div class="avatar-circle">
+        {{ profile_user['nickname'][0]|upper }}
+      </div>
+    </div>
+    <div class="profile-info">
+      <h1 class="profile-name">@{{ profile_user['nickname'] }}</h1>
+      <p class="profile-email">📧 {{ profile_user['username'] }}</p>
+      {% if 'created' in profile_user.keys() %}
+        <p class="profile-joined">📅 Joined {{ profile_user['created'].strftime('%B %d, %Y') }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">😂</div>
+      <div class="stat-value">{{ total_jokes }}</div>
+      <div class="stat-label">Jokes Shared</div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-value">{{ total_ratings }}</div>
+      <div class="stat-label">Total Ratings</div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">💬</div>
+      <div class="stat-value">{{ total_comments }}</div>
+      <div class="stat-label">Comments Received</div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-value">{{ "%.1f"|format(overall_avg_rating) }}</div>
+      <div class="stat-label">Avg Rating</div>
+    </div>
+    
+    <div class="stat-card engagement-card">
+      <div class="stat-icon">🔥</div>
+      <div class="stat-value">{{ engagement_score }}</div>
+      <div class="stat-label">Engagement Score</div>
+    </div>
+  </div>
+
+  <!-- My Jokes Section -->
+  <div class="profile-section">
+    <h2 class="section-title">
+      📝 My Jokes ({{ total_jokes }})
+    </h2>
+    
+    {% if user_jokes %}
+      <div class="profile-jokes-list">
+        {% for joke in user_jokes %}
+          <div class="profile-joke-card">
+            <div class="profile-joke-header">
+              <h3 class="profile-joke-title">{{ joke['title'] }}</h3>
+              <div class="profile-joke-stats">
+                <span class="profile-joke-rating">
+                  ⭐ {{ "%.1f"|format(joke['avg_rating']) }} 
+                  <span class="rating-count">({{ joke['rating_count'] }} ratings)</span>
+                </span>
+              </div>
+            </div>
+            <p class="profile-joke-body">{{ joke['body'][:150] }}{% if joke['body']|length > 150 %}...{% endif %}</p>
+            <div class="profile-joke-footer">
+              <span class="profile-joke-date">{{ joke['created'].strftime('%B %d, %Y') }}</span>
+              <div class="profile-joke-actions">
+                <a href="{{ url_for('index') }}#joke-{{ joke['id'] }}" class="btn-view">👁️ View</a>
+                {% if g.user and g.user['id'] == profile_user['id'] %}
+                  <a href="{{ url_for('jokes.update', id=joke['id']) }}" class="btn-edit-small">✏️ Edit</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-jokes">
+        <p>😢 No jokes shared yet!</p>
+        {% if g.user and g.user['id'] == profile_user['id'] %}
+          <a href="{{ url_for('jokes.leave') }}" class="btn-primary">Share Your First Joke</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

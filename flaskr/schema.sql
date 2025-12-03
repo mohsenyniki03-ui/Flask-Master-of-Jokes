@@ -1,6 +1,7 @@
 -- Initialize the database.
 -- Drop any existing data and create empty tables.
 
+DROP TABLE IF EXISTS comment;
 DROP TABLE IF EXISTS rating;
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS post;
@@ -9,7 +10,8 @@ CREATE TABLE user (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT UNIQUE NOT NULL,
   nickname TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL
+  password TEXT NOT NULL,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE post (
@@ -30,4 +32,14 @@ CREATE TABLE rating (
   FOREIGN KEY (post_id) REFERENCES post (id) ON DELETE CASCADE,
   FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE,
   UNIQUE (post_id, user_id)
+);
+
+CREATE TABLE comment (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  post_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  body TEXT NOT NULL,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (post_id) REFERENCES post (id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE
 );

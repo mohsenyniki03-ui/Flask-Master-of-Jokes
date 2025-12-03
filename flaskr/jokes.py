@@ -38,7 +38,20 @@ def index():
         ).fetchall()
         user_ratings = {r['post_id']: r['rating'] for r in ratings}
     
-    return render_template("jokes/index.html", jokes=posts, user_ratings=user_ratings)
+    # Get comments for all jokes
+    comments_dict = {}
+    for post in posts:
+        comments = db.execute(
+            """SELECT c.id, c.body, c.created, c.user_id, u.username, u.nickname
+               FROM comment c
+               JOIN user u ON c.user_id = u.id
+               WHERE c.post_id = ?
+               ORDER BY c.created ASC""",
+            (post['id'],)
+        ).fetchall()
+        comments_dict[post['id']] = comments
+    
+    return render_template("jokes/index.html", jokes=posts, user_ratings=user_ratings, comments=comments_dict)
 
 
 def get_joke(id, check_author=True):
@@ -170,6 +183,89 @@ def rate(id):
     except Exception as e:
         db.rollback()
         return jsonify({"error": str(e)}), 500
+
+
+@bp.route("/<int:id>/comment", methods=("POST",))
+@login_required
+def add_comment(id):
+    """Add a comment to a joke."""
+    body = request.form.get("body", "").strip()
+    
+    if not body:
+        return jsonify({"success": False, "message": "Comment cannot be empty"}), 400
+    
+    if len(body) > 500:
+        return jsonify({"success": False, "message": "Comment too long (max 500 characters)"}), 400
+    
+    db = get_db()
+    
+    # Check if joke exists
+    joke = db.execute("SELECT id FROM post WHERE id = ?", (id,)).fetchone()
+    if joke is None:
+        return jsonify({"success": False, "message": "Joke not found"}), 404
+    
+    try:
+        # Insert comment
+        db.execute(
+            "INSERT INTO comment (post_id, user_id, body) VALUES (?, ?, ?)",
+            (id, g.user['id'], body)
+        )
+        db.commit()
+        
+        # Get the newly created comment with user info
+        comment = db.execute(
+            """SELECT c.id, c.body, c.created, u.username, u.nickname
+               FROM comment c
+               JOIN user u ON c.user_id = u.id
+               WHERE c.post_id = ? AND c.user_id = ?
+               ORDER BY c.created DESC
+               LIMIT 1""",
+            (id, g.user['id'])
+        ).fetchone()
+        
+        return jsonify({
+            "success": True,
+            "message": "Comment added!",
+            "comment": {
+                "id": comment['id'],
+                "body": comment['body'],
+                "username": comment['username'],
+                "nickname": comment['nickname'],
+                "created": comment['created'],
+                "is_owner": True
+            }
+        })
+        
+    except Exception as e:
+        db.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@bp.route("/comment/<int:id>/delete", methods=("POST",))
+@login_required
+def delete_comment(id):
+    """Delete a comment."""
+    db = get_db()
+    
+    # Get comment and check ownership
+    comment = db.execute(
+        "SELECT post_id, user_id FROM comment WHERE id = ?",
+        (id,)
+    ).fetchone()
+    
+    if comment is None:
+        return jsonify({"success": False, "message": "Comment not found"}), 404
+    
+    if comment['user_id'] != g.user['id']:
+        return jsonify({"success": False, "message": "Unauthorized"}), 403
+    
+    try:
+        db.execute("DELETE FROM comment WHERE id = ?", (id,))
+        db.commit()
+        return jsonify({"success": True, "message": "Comment deleted"})
+    except Exception as e:
+        db.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @bp.route("/<int:id>/delete", methods=("POST",))

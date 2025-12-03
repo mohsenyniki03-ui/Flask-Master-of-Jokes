@@ -5,7 +5,6 @@
 {% block content %}
 <div class="joke-container">
   <div class="page-header">
-    <h1>{% block title %}Master of Jokes{% endblock %}</h1>
     {% if g.user %}
       <a class="btn-new-joke" href="{{ url_for('jokes.leave') }}">+ New Joke</a>
     {% endif %}
@@ -14,12 +13,12 @@
   {% if jokes %}
     <div class="jokes-list">
     {% for joke in jokes %}
-      <div class="joke-card" data-avg-rating="{{ joke['avg_rating'] }}" data-created="{{ joke['created'].isoformat() }}">
+      <div class="joke-card" id="joke-{{ joke['id'] }}" data-avg-rating="{{ joke['avg_rating'] }}" data-created="{{ joke['created'].isoformat() }}">
         <div class="joke-header">
           <div>
             <h2 class="joke-title">{{ joke['title'] }}</h2>
             <div class="joke-meta">
-              <span>Posted by <span class="joke-author">@{{ joke['username'] }}</span></span>
+              <span>Posted by <a href="{{ url_for('auth.profile', username=joke['username']) }}" class="joke-author">@{{ joke['username'] }}</a></span>
               <span>•</span>
               <span>{{ joke['created'].strftime('%B %d, %Y') }}</span>
             </div>
@@ -53,6 +52,52 @@
             <span class="avg-rating">{{ "%.1f"|format(joke['avg_rating']) }}</span>
             <span class="rating-count">({{ joke['rating_count'] }} rating{{ 's' if joke['rating_count'] != 1 else '' }})</span>
           </div>
+        </div>
+        
+        <!-- Comments Section -->
+        <div class="comments-section">
+          <h3 class="comments-title">
+            💬 Comments ({{ comments[joke['id']]|length }})
+          </h3>
+          
+          <div class="comments-list" id="comments-{{ joke['id'] }}">
+            {% for comment in comments[joke['id']] %}
+              <div class="comment" data-comment-id="{{ comment['id'] }}">
+                <div class="comment-header">
+                  <span class="comment-author">@{{ comment['nickname'] }}</span>
+                  <span class="comment-date">{{ comment['created'].strftime('%b %d, %Y at %I:%M %p') }}</span>
+                  {% if g.user and g.user['id'] == comment['user_id'] %}
+                    <button class="btn-delete-comment" onclick="deleteComment({{ comment['id'] }}, {{ joke['id'] }})">🗑️</button>
+                  {% endif %}
+                </div>
+                <p class="comment-body">{{ comment['body'] }}</p>
+              </div>
+            {% endfor %}
+          </div>
+          
+          {% if g.user %}
+            <button class="btn-show-comment-form" onclick="toggleCommentForm({{ joke['id'] }})">
+              💬 Leave a Comment
+            </button>
+            <form class="comment-form" id="comment-form-{{ joke['id'] }}" style="display: none;" onsubmit="addComment(event, {{ joke['id'] }})">
+              <textarea 
+                class="comment-input" 
+                name="body" 
+                placeholder="Add a comment... (max 500 characters)" 
+                maxlength="500"
+                rows="2"
+                required></textarea>
+              <div class="comment-form-footer">
+                <span class="comment-char-count" data-joke-id="{{ joke['id'] }}">0/500</span>
+                <button type="submit" class="btn-comment">Post Comment</button>
+                <button type="button" class="btn-cancel-comment" onclick="toggleCommentForm({{ joke['id'] }})">Cancel</button>
+              </div>
+            </form>
+          {% else %}
+            <p class="comment-login-prompt">
+              <a href="{{ url_for('auth.login') }}">Log in</a> to leave a comment
+            </p>
+          {% endif %}
         </div>
       </div>
     {% endfor %}
@@ -159,6 +204,131 @@ function reorderJokes() {
   }, 300);
 }
 
+// Toggle Comment Form
+function toggleCommentForm(jokeId) {
+  const button = document.querySelector(`.btn-show-comment-form[onclick*="${jokeId}"]`);
+  const form = document.getElementById(`comment-form-${jokeId}`);
+  
+  if (form.style.display === 'none' || !form.style.display) {
+    form.style.display = 'block';
+    button.style.display = 'none';
+    // Focus on the textarea
+    form.querySelector('textarea').focus();
+  } else {
+    form.style.display = 'none';
+    button.style.display = 'block';
+    // Clear the form
+    form.querySelector('textarea').value = '';
+    form.querySelector('.comment-char-count').textContent = '0/500';
+  }
+}
+
+// Comment Functions
+async function addComment(event, jokeId) {
+  event.preventDefault();
+  const form = event.target;
+  const textarea = form.querySelector('textarea[name="body"]');
+  const body = textarea.value.trim();
+  
+  if (!body) {
+    showMessage('Comment cannot be empty', true);
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/${jokeId}/comment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `body=${encodeURIComponent(body)}`
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      // Add comment to the list
+      const commentsList = document.getElementById(`comments-${jokeId}`);
+      const commentHtml = `
+        <div class="comment" data-comment-id="${data.comment.id}">
+          <div class="comment-header">
+            <span class="comment-author">@${data.comment.nickname}</span>
+            <span class="comment-date">Just now</span>
+            ${data.comment.is_owner ? `<button class="btn-delete-comment" onclick="deleteComment(${data.comment.id}, ${jokeId})">🗑️</button>` : ''}
+          </div>
+          <p class="comment-body">${escapeHtml(data.comment.body)}</p>
+        </div>
+      `;
+      commentsList.insertAdjacentHTML('beforeend', commentHtml);
+      
+      // Update comment count
+      const titleEl = commentsList.previousElementSibling;
+      const countMatch = titleEl.textContent.match(/\((\d+)\)/);
+      if (countMatch) {
+        const newCount = parseInt(countMatch[1]) + 1;
+        titleEl.textContent = `💬 Comments (${newCount})`;
+      }
+      
+      // Clear form and hide it
+      textarea.value = '';
+      form.querySelector('.comment-char-count').textContent = '0/500';
+      toggleCommentForm(jokeId);
+      
+      showMessage(data.message);
+    } else {
+      showMessage(data.message || 'Failed to add comment', true);
+    }
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    showMessage('An error occurred while adding comment', true);
+  }
+}
+
+async function deleteComment(commentId, jokeId) {
+  if (!confirm('Are you sure you want to delete this comment?')) {
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/comment/${commentId}/delete`, {
+      method: 'POST'
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      // Remove comment from DOM
+      const commentEl = document.querySelector(`[data-comment-id="${commentId}"]`);
+      if (commentEl) {
+        commentEl.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => commentEl.remove(), 300);
+      }
+      
+      // Update comment count
+      const commentsList = document.getElementById(`comments-${jokeId}`);
+      const titleEl = commentsList.previousElementSibling;
+      const countMatch = titleEl.textContent.match(/\((\d+)\)/);
+      if (countMatch) {
+        const newCount = Math.max(0, parseInt(countMatch[1]) - 1);
+        titleEl.textContent = `💬 Comments (${newCount})`;
+      }
+      
+      showMessage(data.message);
+    } else {
+      showMessage(data.message || 'Failed to delete comment', true);
+    }
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    showMessage('An error occurred while deleting comment', true);
+  }
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
 function showMessage(text, isError = false) {
   const message = document.createElement('div');
   message.className = 'rating-message';
@@ -210,6 +380,25 @@ document.addEventListener('DOMContentLoaded', function() {
   // Update card z-index based on scroll position
   updateCardStacking();
   window.addEventListener('scroll', updateCardStacking);
+  
+  // Add character counter for comment textareas
+  document.querySelectorAll('.comment-input').forEach(textarea => {
+    const jokeId = textarea.closest('.comment-form').querySelector('.comment-char-count').dataset.jokeId;
+    const counter = document.querySelector(`.comment-char-count[data-joke-id="${jokeId}"]`);
+    
+    textarea.addEventListener('input', function() {
+      const length = this.value.length;
+      counter.textContent = `${length}/500`;
+      
+      if (length > 450) {
+        counter.style.color = '#ff6b6b';
+      } else if (length > 400) {
+        counter.style.color = '#feca57';
+      } else {
+        counter.style.color = '#999';
+      }
+    });
+  });
 });
 
 function updateCardStacking() {
