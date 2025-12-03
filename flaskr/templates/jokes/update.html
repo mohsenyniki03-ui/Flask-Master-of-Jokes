@@ -1,19 +1,115 @@
 {% extends 'base.html' %}
 
-{% block header %}
-  <h1>{% block title %}Edit "{{ joke['title'] }}"{% endblock %}</h1>
-{% endblock %}
+{% block header %}{% endblock %}
 
 {% block content %}
-  <form method="post">
-    <label for="title">Title</label>
-    <input name="title" id="title" value="{{ request.form.get('title', joke['title']) }}" required>
-    <label for="body">Body</label>
-    <textarea name="body" id="body">{{ request.form.get('body', joke['body']) }}</textarea>
-    <input type="submit" value="Save">
+<div class="joke-form-container">
+  <h1>{% block title %}Edit Joke ✏️{% endblock %}</h1>
+  <p class="joke-form-subtitle">Update your joke to make it even funnier!</p>
+
+  {% for message in get_flashed_messages() %}
+    <div class="flash-error">{{ message }}</div>
+  {% endfor %}
+
+  <form method="post" class="auth-form">
+    <div class="form-group">
+      <label for="title">Joke Title</label>
+      <input 
+        type="text" 
+        name="title" 
+        id="title" 
+        placeholder="Give your joke a catchy title..."
+        value="{{ request.form.get('title', joke['title']) }}" 
+        required
+        maxlength="100">
+      <small class="form-help">Keep it short and sweet (max 10 words)</small>
+      <div class="character-counter" id="title-counter">0 / 10 words</div>
+    </div>
+
+    <div class="form-group">
+      <label for="body">The Joke</label>
+      <textarea 
+        name="body" 
+        id="body" 
+        placeholder="Write your joke here..."
+        required
+        rows="8">{{ request.form.get('body', joke['body']) }}</textarea>
+      <small class="form-help">Tell us your joke - setup and punchline!</small>
+      <div class="character-counter" id="body-counter">0 characters</div>
+    </div>
+
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      <button type="submit" class="btn-primary">Save Changes 💾</button>
+      <a href="{{ url_for('jokes.index') }}" class="btn-secondary">Cancel</a>
+    </div>
   </form>
-  <hr>
-  <form action="{{ url_for('jokes.delete', id=joke['id']) }}" method="post">
-    <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+
+  <hr style="margin: 2rem 0; border: none; border-top: 1px solid #eee;">
+
+  <form action="{{ url_for('jokes.delete', id=joke['id']) }}" method="post" id="delete-form">
+    <p style="color: #666; margin-bottom: 1rem;">
+      <strong>Danger Zone:</strong> Deleting a joke is permanent and cannot be undone.
+    </p>
+    <button type="submit" class="btn-delete" onclick="return confirm('Are you sure you want to delete this joke? This action cannot be undone!');">
+      🗑️ Delete Joke
+    </button>
   </form>
+</div>
+
+<script>
+  // Title word counter
+  const titleInput = document.getElementById('title');
+  const titleCounter = document.getElementById('title-counter');
+  
+  function updateTitleCounter() {
+    const words = titleInput.value.trim().split(/\s+/).filter(word => word.length > 0);
+    const wordCount = titleInput.value.trim() === '' ? 0 : words.length;
+    titleCounter.textContent = `${wordCount} / 10 words`;
+    
+    if (wordCount > 10) {
+      titleCounter.classList.add('error');
+      titleCounter.classList.remove('warning');
+    } else if (wordCount > 8) {
+      titleCounter.classList.add('warning');
+      titleCounter.classList.remove('error');
+    } else {
+      titleCounter.classList.remove('warning', 'error');
+    }
+  }
+  
+  titleInput.addEventListener('input', updateTitleCounter);
+  updateTitleCounter(); // Initial count
+
+  // Body character counter
+  const bodyInput = document.getElementById('body');
+  const bodyCounter = document.getElementById('body-counter');
+  
+  function updateBodyCounter() {
+    const charCount = bodyInput.value.length;
+    bodyCounter.textContent = `${charCount} characters`;
+  }
+  
+  bodyInput.addEventListener('input', updateBodyCounter);
+  updateBodyCounter(); // Initial count
+
+  // Form validation
+  document.querySelector('form').addEventListener('submit', function(e) {
+    if (this.id === 'delete-form') return; // Skip validation for delete form
+    
+    const words = titleInput.value.trim().split(/\s+/).filter(word => word.length > 0);
+    const wordCount = titleInput.value.trim() === '' ? 0 : words.length;
+    
+    if (wordCount > 10) {
+      e.preventDefault();
+      alert('Title must be 10 words or less. Please shorten it!');
+      titleInput.focus();
+    }
+    
+    if (bodyInput.value.trim() === '') {
+      e.preventDefault();
+      alert('Please write your joke!');
+      bodyInput.focus();
+    }
+  });
+</script>
 {% endblock %}

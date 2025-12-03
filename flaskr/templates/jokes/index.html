@@ -1,28 +1,48 @@
 {% extends 'base.html' %}
 
-{% block header %}
-  <h1>{% block title %}Jokes{% endblock %}</h1>
-  {% if g.user %}
-    <a class="action" href="{{ url_for('jokes.leave') }}">Leave a Joke</a>
-  {% endif %}
-{% endblock %}
+{% block header %}{% endblock %}
 
 {% block content %}
-{% for joke in jokes %}
-<article class="joke">
-  <header>
-    <div>
-      <h1>{{ joke['title'] }}</h1>
-      <div class="about">by {{ joke['username'] }} on {{ joke['created'].strftime('%Y-%m-%d') }}</div>
-    </div>
-    {% if g.user['id'] == joke['author_id'] %}
-      <a class="action" href="{{ url_for('jokes.update', id=joke['id']) }}">Edit</a>
+<div class="joke-container">
+  <div class="page-header">
+    <h1>{% block title %}Master of Jokes 🎭{% endblock %}</h1>
+    {% if g.user %}
+      <a class="btn-new-joke" href="{{ url_for('jokes.leave') }}">+ New Joke</a>
     {% endif %}
-  </header>
-  <p class="body">{{ joke['body'] }}</p>
-</article>
-{% if not loop.last %}
-  <hr>
-{% endif %}
-{% endfor %}
+  </div>
+
+  {% if jokes %}
+    {% for joke in jokes %}
+      <div class="joke-card">
+        <div class="joke-header">
+          <div>
+            <h2 class="joke-title">{{ joke['title'] }}</h2>
+            <div class="joke-meta">
+              <span>Posted by <span class="joke-author">@{{ joke['username'] }}</span></span>
+              <span>•</span>
+              <span>{{ joke['created'].strftime('%B %d, %Y') }}</span>
+            </div>
+          </div>
+          {% if g.user and g.user['id'] == joke['author_id'] %}
+            <div class="joke-actions">
+              <a class="btn-edit" href="{{ url_for('jokes.update', id=joke['id']) }}">✏️ Edit</a>
+            </div>
+          {% endif %}
+        </div>
+        <p class="joke-body">{{ joke['body'] }}</p>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">😢</div>
+      <p class="empty-state-text">No jokes yet!</p>
+      <p>Be the first to share a joke and make everyone laugh!</p>
+      {% if g.user %}
+        <a href="{{ url_for('jokes.leave') }}" class="btn-primary" style="margin-top: 1rem; display: inline-block;">Share Your First Joke</a>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}" class="btn-primary" style="margin-top: 1rem; display: inline-block;">Login to Share Jokes</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
 {% endblock %}

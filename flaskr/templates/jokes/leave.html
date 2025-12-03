@@ -1,15 +1,98 @@
 {% extends 'base.html' %}
 
-{% block header %}
-  <h1>{% block title %}New Joke{% endblock %}</h1>
-{% endblock %}
+{% block header %}{% endblock %}
 
 {% block content %}
-  <form method="post">
-    <label for="title">Title</label>
-    <input name="title" id="title" value="{{ request.form.get('title', '') }}" required>
-    <label for="body">Body</label>
-    <textarea name="body" id="body">{{ request.form['body'] }}</textarea>
-    <input type="submit" value="Save">
+<div class="joke-form-container">
+  <h1>{% block title %}Share a Joke 😄{% endblock %}</h1>
+  <p class="joke-form-subtitle">Make someone laugh today! Share your best joke with the community.</p>
+
+  {% for message in get_flashed_messages() %}
+    <div class="flash-error">{{ message }}</div>
+  {% endfor %}
+
+  <form method="post" class="auth-form">
+    <div class="form-group">
+      <label for="title">Joke Title</label>
+      <input 
+        type="text" 
+        name="title" 
+        id="title" 
+        placeholder="Give your joke a catchy title..."
+        value="{{ request.form.get('title', '') }}" 
+        required
+        maxlength="100">
+      <small class="form-help">Keep it short and sweet (max 10 words)</small>
+      <div class="character-counter" id="title-counter">0 / 10 words</div>
+    </div>
+
+    <div class="form-group">
+      <label for="body">The Joke</label>
+      <textarea 
+        name="body" 
+        id="body" 
+        placeholder="Write your joke here... 
+
+Example:
+Why don't scientists trust atoms?
+Because they make up everything!"
+        required
+        rows="8">{{ request.form.get('body', '') }}</textarea>
+      <small class="form-help">Tell us your joke - setup and punchline!</small>
+      <div class="character-counter" id="body-counter">0 characters</div>
+    </div>
+
+    <button type="submit" class="btn-primary">Post Joke 🎭</button>
+    <a href="{{ url_for('jokes.index') }}" class="btn-secondary" style="margin-left: 1rem;">Cancel</a>
   </form>
+</div>
+
+<script>
+  // Title word counter
+  const titleInput = document.getElementById('title');
+  const titleCounter = document.getElementById('title-counter');
+  
+  titleInput.addEventListener('input', function() {
+    const words = this.value.trim().split(/\s+/).filter(word => word.length > 0);
+    const wordCount = this.value.trim() === '' ? 0 : words.length;
+    titleCounter.textContent = `${wordCount} / 10 words`;
+    
+    if (wordCount > 10) {
+      titleCounter.classList.add('error');
+      titleCounter.classList.remove('warning');
+    } else if (wordCount > 8) {
+      titleCounter.classList.add('warning');
+      titleCounter.classList.remove('error');
+    } else {
+      titleCounter.classList.remove('warning', 'error');
+    }
+  });
+
+  // Body character counter
+  const bodyInput = document.getElementById('body');
+  const bodyCounter = document.getElementById('body-counter');
+  
+  bodyInput.addEventListener('input', function() {
+    const charCount = this.value.length;
+    bodyCounter.textContent = `${charCount} characters`;
+  });
+
+  // Form validation
+  document.querySelector('form').addEventListener('submit', function(e) {
+    const words = titleInput.value.trim().split(/\s+/).filter(word => word.length > 0);
+    const wordCount = titleInput.value.trim() === '' ? 0 : words.length;
+    
+    if (wordCount > 10) {
+      e.preventDefault();
+      alert('Title must be 10 words or less. Please shorten it!');
+      titleInput.focus();
+    }
+    
+    if (bodyInput.value.trim() === '') {
+      e.preventDefault();
+      alert('Please write your joke!');
+      bodyInput.focus();
+    }
+  });
+</script>
 {% endblock %}
