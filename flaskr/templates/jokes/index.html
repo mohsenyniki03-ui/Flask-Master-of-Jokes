@@ -12,8 +12,9 @@
   </div>
 
   {% if jokes %}
+    <div class="jokes-list">
     {% for joke in jokes %}
-      <div class="joke-card">
+      <div class="joke-card" data-avg-rating="{{ joke['avg_rating'] }}" data-created="{{ joke['created'].isoformat() }}">
         <div class="joke-header">
           <div>
             <h2 class="joke-title">{{ joke['title'] }}</h2>
@@ -55,6 +56,7 @@
         </div>
       </div>
     {% endfor %}
+    </div>
   {% else %}
     <div class="empty-state">
       <div class="empty-state-icon">😢</div>
@@ -82,7 +84,8 @@ function rateJoke(jokeId, rating) {
   .then(data => {
     if (data.success) {
       // Update the stars
-      const starContainer = document.querySelector(`.star-rating[data-joke-id="${jokeId}"]`);
+      const jokeCard = document.querySelector(`.star-rating[data-joke-id="${jokeId}"]`).closest('.joke-card');
+      const starContainer = jokeCard.querySelector(`.star-rating[data-joke-id="${jokeId}"]`);
       const stars = starContainer.querySelectorAll('.star');
       stars.forEach((star, index) => {
         star.classList.remove('filled', 'user-rated');
@@ -97,8 +100,14 @@ function rateJoke(jokeId, rating) {
       ratingInfo.querySelector('.rating-count').textContent = 
         `(${data.rating_count} rating${data.rating_count !== 1 ? 's' : ''})`;
       
+      // Store the new average rating in the card for sorting
+      jokeCard.dataset.avgRating = data.avg_rating;
+      
       // Show success message
       showMessage('Rating saved! ⭐');
+      
+      // Reorder jokes after a brief delay to show the update
+      setTimeout(() => reorderJokes(), 500);
     } else {
       showMessage('Error saving rating', true);
     }
@@ -107,6 +116,38 @@ function rateJoke(jokeId, rating) {
     console.error('Error:', error);
     showMessage('Error saving rating', true);
   });
+}
+
+function reorderJokes() {
+  const jokesContainer = document.querySelector('.jokes-list');
+  if (!jokesContainer) return;
+  
+  const jokeCards = Array.from(jokesContainer.querySelectorAll('.joke-card'));
+  
+  // Sort by average rating (highest first), then by creation date
+  jokeCards.sort((a, b) => {
+    const ratingA = parseFloat(a.dataset.avgRating || 0);
+    const ratingB = parseFloat(b.dataset.avgRating || 0);
+    
+    if (ratingB !== ratingA) {
+      return ratingB - ratingA; // Higher rating first
+    }
+    
+    // If ratings are equal, maintain original order (by created date)
+    return 0;
+  });
+  
+  // Animate the reordering
+  jokeCards.forEach((card, index) => {
+    card.style.order = index;
+    card.style.animation = 'none';
+    setTimeout(() => {
+      card.style.animation = 'slideIn 0.5s ease-out';
+    }, index * 50);
+  });
+  
+  // Re-append in new order
+  jokeCards.forEach(card => jokesContainer.appendChild(card));
 }
 
 function showMessage(text, isError = false) {

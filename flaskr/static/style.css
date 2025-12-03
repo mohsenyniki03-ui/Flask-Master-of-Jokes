@@ -382,6 +382,12 @@ input[type=submit] {
   padding: 2rem 1rem;
 }
 
+.jokes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 .joke-form-container {
   max-width: 700px;
   margin: 2rem auto;
@@ -662,16 +668,19 @@ textarea {
 
 .star:hover,
 .star.hovered {
-  color: #feca57;
+  color: #ffed4e;
   transform: scale(1.2);
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
 }
 
 .star.filled {
-  color: #feca57;
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 .star.user-rated {
-  color: #ff6b6b;
+  color: #ffb700;
+  text-shadow: 0 0 10px rgba(255, 183, 0, 0.6);
 }
 
 .rating-info {
