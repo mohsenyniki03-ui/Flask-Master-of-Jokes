@@ -34,7 +34,19 @@ def migrate():
             conn.commit()
             print("✅ Successfully added 'created' column to user table!")
         else:
-            print("ℹ️  'created' column already exists in user table.")
+            # Column exists, but ensure no NULL values
+            print("ℹ️  'created' column already exists. Checking for NULL values...")
+            cursor.execute("""
+                UPDATE user 
+                SET created = CURRENT_TIMESTAMP 
+                WHERE created IS NULL
+            """)
+            rows_updated = cursor.rowcount
+            conn.commit()
+            if rows_updated > 0:
+                print(f"✅ Updated {rows_updated} user(s) with NULL created dates.")
+            else:
+                print("✅ All users have created dates.")
             
     except sqlite3.Error as e:
         print(f"❌ Error during migration: {e}")

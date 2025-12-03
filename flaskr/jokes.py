@@ -19,7 +19,7 @@ def index():
     """Show all the jokes, sorted by average rating (highest first)."""
     db = get_db()
     posts = db.execute(
-        """SELECT p.id, p.title, p.body, p.created, p.author_id, u.username,
+        """SELECT p.id, p.title, p.body, p.created, p.author_id, u.nickname as username,
                   COALESCE(AVG(r.rating), 0) as avg_rating,
                   COUNT(DISTINCT r.id) as rating_count
            FROM post p 

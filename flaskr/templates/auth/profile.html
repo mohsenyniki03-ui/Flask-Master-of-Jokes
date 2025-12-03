@@ -12,7 +12,7 @@
     <div class="profile-info">
       <h1 class="profile-name">@{{ profile_user['nickname'] }}</h1>
       <p class="profile-email">📧 {{ profile_user['username'] }}</p>
-      {% if 'created' in profile_user.keys() %}
+      {% if profile_user['created'] %}
         <p class="profile-joined">📅 Joined {{ profile_user['created'].strftime('%B %d, %Y') }}</p>
       {% endif %}
     </div>
