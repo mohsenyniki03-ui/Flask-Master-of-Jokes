@@ -397,9 +397,10 @@ input[type=submit] {
 .jokes-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0;
   position: relative;
   counter-reset: joke-counter;
+  padding-top: 2rem;
 }
 
 .joke-form-container {
@@ -427,18 +428,56 @@ input[type=submit] {
 
 .joke-card {
   background: linear-gradient(135deg, #ffffff 0%, #fef9f3 100%);
-  border-radius: 16px;
-  padding: 1rem 1.5rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  border: 4px solid transparent;
+  border-radius: 20px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 2px solid rgba(255, 230, 109, 0.3);
   background-clip: padding-box;
   position: relative;
   width: 100%;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 0 auto -15px auto;
   transform-style: preserve-3d;
   will-change: transform, box-shadow, z-index;
+}
+
+/* Stack effect - each card is positioned behind the previous one */
+.joke-card:nth-child(1) {
+  z-index: 100;
+  transform: translateY(0) scale(1);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.joke-card:nth-child(2) {
+  z-index: 99;
+  transform: translateY(-10px) scale(0.98);
+  opacity: 0.95;
+}
+
+.joke-card:nth-child(3) {
+  z-index: 98;
+  transform: translateY(-18px) scale(0.96);
+  opacity: 0.9;
+}
+
+.joke-card:nth-child(4) {
+  z-index: 97;
+  transform: translateY(-24px) scale(0.94);
+  opacity: 0.85;
+}
+
+.joke-card:nth-child(n+5) {
+  z-index: 96;
+  transform: translateY(-28px) scale(0.92);
+  opacity: 0.8;
+}
+
+.joke-card:hover {
+  transform: translateY(-10px) scale(1.02) !important;
+  box-shadow: 0 15px 50px rgba(230, 126, 34, 0.4) !important;
+  z-index: 1000 !important;
+  opacity: 1 !important;
 }
 
 /* Dynamic stacking with scroll */

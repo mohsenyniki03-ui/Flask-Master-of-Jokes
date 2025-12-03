@@ -141,7 +141,7 @@ def login():
             # store the user id in a new session and return to the index
             session.clear()
             session["user_id"] = user["id"]
-            return redirect(url_for("jokes.leave"))
+            return redirect(url_for("jokes.index"))
 
         flash(error)
 
