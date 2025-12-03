@@ -1,0 +1,21 @@
+This is to make it installable  
+You will use pip to install the project in the virtual enviroment  
+First use pip install -e .  
+this will tell pyproject.toml to make it installable   
+Then use pip list to see everything is working  
+
+Production  
+This is to deploy the application elsewhere you build a .whl file with  
+pip install build and python -m build --wheel  
+
+Then in another virtual machine to another machine then  
+pip install flaskr-1.0.0-py3-none-any.whl  
+To install the project  
+Then run:  
+flask --app flaskr init-db  
+To initialize the database
+
+Use this to run with a Production server   
+pip install waitress  
+waitress-serve --call 'flaskr:create_app'  
+To get the server  

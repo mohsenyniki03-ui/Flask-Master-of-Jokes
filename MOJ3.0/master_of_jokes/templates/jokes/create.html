@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Leave a Joke{% endblock %}
+
+{% block header %}
+    <h2>Leave a Joke</h2>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <div class="form-group">
+            <label for="title">Title (max 10 words)</label>
+            <input type="text" name="title" id="title" required>
+        </div>
+        <div class="form-group">
+            <label for="body">Body</label>
+            <textarea name="body" id="body" rows="10" required></textarea>
+        </div>
+        <div class="form-actions">
+            <input type="submit" value="Save">
+        </div>
+    </form>
+{% endblock %}

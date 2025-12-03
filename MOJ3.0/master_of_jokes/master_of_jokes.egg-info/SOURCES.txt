@@ -1,0 +1,12 @@
+MANIFEST.in
+setup.py
+master_of_jokes.egg-info/PKG-INFO
+master_of_jokes.egg-info/SOURCES.txt
+master_of_jokes.egg-info/dependency_links.txt
+master_of_jokes.egg-info/requires.txt
+master_of_jokes.egg-info/top_level.txt
+tests/__init__.py
+tests/conftest.py
+tests/test_auth.py
+tests/test_factory.py
+tests/test_jokes.py

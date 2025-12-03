@@ -1,0 +1,48 @@
+DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS joke;
+DROP TABLE IF EXISTS joke_view;
+DROP TABLE IF EXISTS joke_rating;
+DROP TABLE IF EXISTS user;
+
+CREATE TABLE user (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT UNIQUE NOT NULL,
+  nickname TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+
+  role TEXT NOT NULL DEFAULT 'user' CHECK(role IN ('user', 'moderator')),
+
+  joke_balance INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE joke (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  author_id INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (author_id) REFERENCES user (id),
+  UNIQUE (author_id, title)
+);
+
+CREATE TABLE joke_view (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  joke_id INTEGER NOT NULL,
+  viewed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES user (id),
+  FOREIGN KEY (joke_id) REFERENCES joke (id),
+  UNIQUE (user_id, joke_id)
+);
+
+CREATE TABLE joke_rating (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  joke_id INTEGER NOT NULL,
+  rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  rated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES user (id),
+  FOREIGN KEY (joke_id) REFERENCES joke (id),
+  UNIQUE (user_id, joke_id)
+);
+

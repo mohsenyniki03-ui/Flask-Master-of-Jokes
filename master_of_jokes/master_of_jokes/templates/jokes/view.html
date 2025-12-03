@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ joke['title'] }}{% endblock %}
+
+{% block header %}
+    <h2>{{ joke['title'] }}</h2>
+{% endblock %}
+
+{% block content %}
+    <article class="joke">
+        <div class="joke-info">
+            <p class="joke-author">By: {{ joke['nickname'] }}</p>
+            <p class="joke-date">Created: {{ joke['created'].strftime('%Y-%m-%d') }}</p>
+            <p class="joke-rating">Rating: {{ "%.1f"|format(joke['avg_rating']) }}</p>
+        </div>
+        
+        <div class="joke-content">
+            <p>{{ joke['body'] }}</p>
+        </div>
+        
+        {% if g.user['id'] == joke['author_id'] %}
+            <div class="joke-actions">
+                <a href="{{ url_for('jokes.update', id=joke['id']) }}" class="button">Edit</a>
+                <form action="{{ url_for('jokes.delete', id=joke['id']) }}" method="post" class="inline">
+                    <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+                </form>
+            </div>
+        {% else %}
+            <div class="rating-form">
+                <h3>Rate this joke</h3>
+                <form method="post">
+                    <div class="rating">
+                        <input type="radio" id="star5" name="rating" value="5" {% if user_rating and user_rating['rating'] == 5 %}checked{% endif %}>
+                        <label for="star5">5</label>
+                        <input type="radio" id="star4" name="rating" value="4" {% if user_rating and user_rating['rating'] == 4 %}checked{% endif %}>
+                        <label for="star4">4</label>
+                        <input type="radio" id="star3" name="rating" value="3" {% if user_rating and user_rating['rating'] == 3 %}checked{% endif %}>
+                        <label for="star3">3</label>
+                        <input type="radio" id="star2" name="rating" value="2" {% if user_rating and user_rating['rating'] == 2 %}checked{% endif %}>
+                        <label for="star2">2</label>
+                        <input type="radio" id="star1" name="rating" value="1" {% if user_rating and user_rating['rating'] == 1 %}checked{% endif %}>
+                        <label for="star1">1</label>
+                    </div>
+                    <button type="submit" class="button">Submit Rating</button>
+                </form>
+            </div>
+        {% endif %}
+        
+        <div class="navigation">
+            <a href="{{ url_for('jokes.list_jokes') }}">Back to Joke List</a>
+        </div>
+    </article>
+{% endblock %}

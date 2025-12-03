@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Moderator Dashboard</h1>
+
+  <table>
+    <tr><th>ID</th><th>Nickname</th><th>Role</th><th>Actions</th></tr>
+    {% for user in users %}
+    <tr>
+      <td>{{ user.id }}</td>
+      <td>{{ user.nickname }}</td>
+      <td>{{ user.role }}</td>
+      <td>
+        {% if user.role == 'user' %}
+          <form action="{{ url_for('moderator.promote') }}" method="post" style="display:inline;">
+            <input type="hidden" name="user_id" value="{{ user.id }}">
+            <button type="submit">Make Moderator</button>
+          </form>
+        {% endif %}
+
+        {% if user.role == 'moderator' and user.id != g.user['id'] %}
+          <form action="{{ url_for('moderator.demote') }}" method="post" style="display:inline;">
+            <input type="hidden" name="user_id" value="{{ user.id }}">
+            <button type="submit">Remove Moderator</button>
+          </form>
+        {% endif %}
+
+        <!-- Allow balance updates for everyone, including self -->
+        <form action="{{ url_for('moderator.update_balance') }}" method="post" style="display:inline;">
+          <input type="hidden" name="user_id" value="{{ user.id }}">
+          <input type="number" name="new_balance" value="{{ user.joke_balance }}">
+          <button type="submit">Update</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

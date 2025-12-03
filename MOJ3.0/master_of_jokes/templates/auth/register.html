@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block header %}
+    <h2>Register</h2>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" required>
+        </div>
+        <div class="form-group">
+            <label for="nickname">Nickname</label>
+            <input type="text" name="nickname" id="nickname" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" required>
+        </div>
+        <div class="form-actions">
+            <input type="submit" value="Register">
+        </div>
+    </form>
+    <div class="login-link">
+        <p>Already have an account? <a href="{{ url_for('auth.login') }}">Log In</a></p>
+    </div>
+{% endblock %}

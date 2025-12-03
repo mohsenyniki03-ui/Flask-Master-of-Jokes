@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}My Jokes{% endblock %}
+
+{% block header %}
+    <h2>My Jokes</h2>
+{% endblock %}
+
+{% block content %}
+    {% if jokes %}
+        <ul class="jokes-list">
+            {% for joke in jokes %}
+                <li class="joke-item">
+                    <div class="joke-header">
+                        <a class="joke-title" href="{{ url_for('jokes.view', id=joke['id']) }}">{{ joke['title'] }}</a>
+                        <span class="joke-rating">
+                            Rating: {{ "%.1f"|format(joke['avg_rating']) }}
+                        </span>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="no-jokes">You haven't created any jokes yet.</p>
+        <a href="{{ url_for('jokes.create') }}" class="button">Create your first joke</a>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+    <title>{% block title %}{% endblock %} - Master of Jokes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Master of Jokes</h1>
+        <nav>
+            {% if g.user %}
+                <span class="joke-balance">Joke Balance: {{ g.user['joke_balance'] }}</span>
+                <a href="{{ url_for('jokes.create') }}">Leave a Joke</a>
+                <a href="{{ url_for('jokes.my_jokes') }}">My Jokes</a>
+                <a href="{{ url_for('jokes.list_jokes') }}" {% if g.user['joke_balance'] <= 0 %}class="disabled"{% endif %}>Take a Joke</a>
+                <a href="{{ url_for('auth.logout') }}">Log Out</a>
+            {% else %}
+                <a href="{{ url_for('auth.register') }}">Register</a>
+                <a href="{{ url_for('auth.login') }}">Log In</a>
+            {% endif %}
+        </nav>
+    </header>
+    <section class="content">
+        <header>
+            {% block header %}{% endblock %}
+        </header>
+        {% for message in get_flashed_messages() %}
+            <div class="flash">{{ message }}</div>
+        {% endfor %}
+        {% block content %}{% endblock %}
+    </section>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
