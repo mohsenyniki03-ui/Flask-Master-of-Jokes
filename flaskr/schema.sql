@@ -1,6 +1,7 @@
 -- Initialize the database.
 -- Drop any existing data and create empty tables.
 
+DROP TABLE IF EXISTS rating;
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS post;
 
@@ -18,4 +19,15 @@ CREATE TABLE post (
   title TEXT NOT NULL,
   body TEXT NOT NULL,
   FOREIGN KEY (author_id) REFERENCES user (id)
+);
+
+CREATE TABLE rating (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  post_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (post_id) REFERENCES post (id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE,
+  UNIQUE (post_id, user_id)
 );

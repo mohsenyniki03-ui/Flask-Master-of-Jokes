@@ -636,3 +636,82 @@ textarea {
   min-height: 120px;
   font-family: inherit;
 }
+
+/* Star Rating Styles */
+.rating-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px dashed #ffe66d;
+}
+
+.star-rating {
+  display: flex;
+  gap: 0.25rem;
+  font-size: 1.5rem;
+}
+
+.star {
+  cursor: pointer;
+  color: #ddd;
+  transition: all 0.2s;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.star:hover,
+.star.hovered {
+  color: #feca57;
+  transform: scale(1.2);
+}
+
+.star.filled {
+  color: #feca57;
+}
+
+.star.user-rated {
+  color: #ff6b6b;
+}
+
+.rating-info {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 600;
+}
+
+.rating-info .avg-rating {
+  color: #ff6b6b;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.rating-info .rating-count {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.rating-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #a8e6cf 0%, #55efc4 100%);
+  color: #00695c;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  font-weight: 600;
+  z-index: 1000;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

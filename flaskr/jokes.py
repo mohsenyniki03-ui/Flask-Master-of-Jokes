@@ -1,6 +1,7 @@
 from flask import Blueprint
 from flask import flash
 from flask import g
+from flask import jsonify
 from flask import redirect
 from flask import render_template
 from flask import request
@@ -15,14 +16,29 @@ bp = Blueprint("jokes", __name__)
 
 @bp.route("/")
 def index():
-    """Show all the jokes, most recent first."""
+    """Show all the jokes, sorted by average rating (highest first)."""
     db = get_db()
     posts = db.execute(
-        "SELECT p.id, title, body, created, author_id, username"
-        " FROM post p JOIN user u ON p.author_id = u.id"
-        " ORDER BY created DESC"
+        """SELECT p.id, p.title, p.body, p.created, p.author_id, u.username,
+                  COALESCE(AVG(r.rating), 0) as avg_rating,
+                  COUNT(DISTINCT r.id) as rating_count
+           FROM post p 
+           JOIN user u ON p.author_id = u.id
+           LEFT JOIN rating r ON p.id = r.post_id
+           GROUP BY p.id
+           ORDER BY avg_rating DESC, p.created DESC"""
     ).fetchall()
-    return render_template("jokes/index.html", jokes=posts)
+    
+    # Get user's ratings if logged in
+    user_ratings = {}
+    if g.user:
+        ratings = db.execute(
+            "SELECT post_id, rating FROM rating WHERE user_id = ?",
+            (g.user['id'],)
+        ).fetchall()
+        user_ratings = {r['post_id']: r['rating'] for r in ratings}
+    
+    return render_template("jokes/index.html", jokes=posts, user_ratings=user_ratings)
 
 
 def get_joke(id, check_author=True):
@@ -108,6 +124,52 @@ def update(id):
             return redirect(url_for("jokes.index"))
 
     return render_template("jokes/update.html", joke=joke)
+
+
+@bp.route("/<int:id>/rate", methods=("POST",))
+@login_required
+def rate(id):
+    """Rate a joke with 1-5 stars."""
+    rating_value = request.form.get("rating", type=int)
+    
+    if not rating_value or rating_value < 1 or rating_value > 5:
+        return jsonify({"error": "Invalid rating"}), 400
+    
+    db = get_db()
+    
+    # Check if joke exists
+    joke = db.execute("SELECT id FROM post WHERE id = ?", (id,)).fetchone()
+    if joke is None:
+        return jsonify({"error": "Joke not found"}), 404
+    
+    try:
+        # Insert or update rating
+        db.execute(
+            """INSERT INTO rating (post_id, user_id, rating) 
+               VALUES (?, ?, ?)
+               ON CONFLICT(post_id, user_id) 
+               DO UPDATE SET rating = ?, created = CURRENT_TIMESTAMP""",
+            (id, g.user['id'], rating_value, rating_value)
+        )
+        db.commit()
+        
+        # Get updated average rating
+        result = db.execute(
+            """SELECT COALESCE(AVG(rating), 0) as avg_rating,
+                      COUNT(*) as rating_count
+               FROM rating WHERE post_id = ?""",
+            (id,)
+        ).fetchone()
+        
+        return jsonify({
+            "success": True,
+            "avg_rating": round(result['avg_rating'], 1),
+            "rating_count": result['rating_count']
+        })
+        
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": str(e)}), 500
 
 
 @bp.route("/<int:id>/delete", methods=("POST",))

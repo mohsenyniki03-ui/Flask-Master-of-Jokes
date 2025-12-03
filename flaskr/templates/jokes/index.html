@@ -30,6 +30,29 @@
           {% endif %}
         </div>
         <p class="joke-body">{{ joke['body'] }}</p>
+        
+        <!-- Star Rating Section -->
+        <div class="rating-container">
+          {% if g.user %}
+            <div class="star-rating" data-joke-id="{{ joke['id'] }}">
+              {% for i in range(1, 6) %}
+                <span class="star {% if user_ratings.get(joke['id']) and user_ratings[joke['id']] >= i %}filled user-rated{% elif joke['avg_rating'] >= i %}filled{% endif %}" 
+                      data-rating="{{ i }}">★</span>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="star-rating">
+              {% for i in range(1, 6) %}
+                <span class="star {% if joke['avg_rating'] >= i %}filled{% endif %}">★</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+          
+          <div class="rating-info">
+            <span class="avg-rating">{{ "%.1f"|format(joke['avg_rating']) }}</span>
+            <span class="rating-count">({{ joke['rating_count'] }} rating{{ 's' if joke['rating_count'] != 1 else '' }})</span>
+          </div>
+        </div>
       </div>
     {% endfor %}
   {% else %}
@@ -45,4 +68,94 @@
     </div>
   {% endif %}
 </div>
+
+<script>
+function rateJoke(jokeId, rating) {
+  fetch(`/${jokeId}/rate`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `rating=${rating}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Update the stars
+      const starContainer = document.querySelector(`.star-rating[data-joke-id="${jokeId}"]`);
+      const stars = starContainer.querySelectorAll('.star');
+      stars.forEach((star, index) => {
+        star.classList.remove('filled', 'user-rated');
+        if (index < rating) {
+          star.classList.add('filled', 'user-rated');
+        }
+      });
+      
+      // Update rating info
+      const ratingInfo = starContainer.nextElementSibling;
+      ratingInfo.querySelector('.avg-rating').textContent = data.avg_rating.toFixed(1);
+      ratingInfo.querySelector('.rating-count').textContent = 
+        `(${data.rating_count} rating${data.rating_count !== 1 ? 's' : ''})`;
+      
+      // Show success message
+      showMessage('Rating saved! ⭐');
+    } else {
+      showMessage('Error saving rating', true);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showMessage('Error saving rating', true);
+  });
+}
+
+function showMessage(text, isError = false) {
+  const message = document.createElement('div');
+  message.className = 'rating-message';
+  message.textContent = text;
+  if (isError) {
+    message.style.background = 'linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%)';
+    message.style.color = '#d63031';
+  }
+  document.body.appendChild(message);
+  
+  setTimeout(() => {
+    message.style.animation = 'slideInRight 0.3s ease-out reverse';
+    setTimeout(() => message.remove(), 300);
+  }, 2000);
+}
+
+// Add hover effect and click handlers for stars
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.star-rating[data-joke-id]').forEach(container => {
+    const jokeId = container.getAttribute('data-joke-id');
+    const stars = container.querySelectorAll('.star');
+    
+    stars.forEach((star, index) => {
+      const rating = parseInt(star.getAttribute('data-rating'));
+      
+      // Add click handler
+      star.addEventListener('click', function() {
+        console.log(`Clicking star ${rating} for joke ${jokeId}`);
+        rateJoke(jokeId, rating);
+      });
+      
+      // Add hover effect
+      star.addEventListener('mouseenter', function() {
+        stars.forEach((s, i) => {
+          if (i <= index) {
+            s.classList.add('hovered');
+          } else {
+            s.classList.remove('hovered');
+          }
+        });
+      });
+    });
+    
+    container.addEventListener('mouseleave', function() {
+      stars.forEach(s => s.classList.remove('hovered'));
+    });
+  });
+});
+</script>
 {% endblock %}
