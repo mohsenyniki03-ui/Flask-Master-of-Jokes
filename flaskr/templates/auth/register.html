@@ -1,20 +1,84 @@
 {% extends 'base.html' %}
 
-{% block header %}
-  <h1>{% block title %}Register{% endblock %}</h1>
-{% endblock %}
+{% block header %}{% endblock %}
 
 {% block content %}
-  <form method="post">
-    <label for="username">Email</label>
-    <input name="username" id="username" required>
+<div class="auth-container">
+  <h1>{% block title %}Create Account{% endblock %}</h1>
+  <p class="auth-subtitle">Join Master of Jokes today!</p>
 
-    <label for="nickname">Nickname</label>
-    <input name="nickname" id="nickname" required>
+  {% for message in get_flashed_messages() %}
+    <div class="flash-error">{{ message }}</div>
+  {% endfor %}
 
-    <label for="password">Password</label>
-    <input type="password" name="password" id="password" required>
+  <form method="post" class="auth-form">
+    <div class="form-group">
+      <label for="username">Email Address</label>
+      <input 
+        type="email" 
+        name="username" 
+        id="username" 
+        placeholder="you@example.com"
+        required
+        autocomplete="email">
+      <small class="form-help">We'll never share your email with anyone else.</small>
+    </div>
 
-    <input type="submit" value="Register">
+    <div class="form-group">
+      <label for="nickname">Nickname</label>
+      <input 
+        type="text" 
+        name="nickname" 
+        id="nickname" 
+        placeholder="Choose a unique nickname"
+        required
+        autocomplete="username"
+        minlength="3"
+        maxlength="20">
+      <small class="form-help">This will be your display name (3-20 characters).</small>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input 
+        type="password" 
+        name="password" 
+        id="password" 
+        placeholder="Enter a password"
+        required
+        autocomplete="new-password">
+    </div>
+
+    <div class="form-group">
+      <label for="confirm-password">Confirm Password</label>
+      <input 
+        type="password" 
+        name="confirm-password" 
+        id="confirm-password" 
+        placeholder="Re-enter your password"
+        required
+        autocomplete="new-password">
+    </div>
+
+    <button type="submit" class="btn-primary">Create Account</button>
+
+    <div class="auth-links">
+      Already have an account? <a href="{{ url_for('auth.login') }}">Log in here</a>
+    </div>
   </form>
+</div>
+
+<script>
+  // Password confirmation validation
+  const passwordInput = document.getElementById('password');
+  const confirmPassword = document.getElementById('confirm-password');
+
+  document.querySelector('form').addEventListener('submit', function(e) {
+    if (passwordInput.value !== confirmPassword.value) {
+      e.preventDefault();
+      alert('Passwords do not match! Please try again.');
+      confirmPassword.focus();
+    }
+  });
+</script>
 {% endblock %}

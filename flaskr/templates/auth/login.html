@@ -1,17 +1,54 @@
 {% extends 'base.html' %}
 
-{% block header %}
-  <h1>{% block title %}Log In{% endblock %}</h1>
-{% endblock %}
+{% block header %}{% endblock %}
 
 {% block content %}
-  <form method="post">
-    <label for="username">Email or Nickname </label>
-    <input name="username" id="username" required>
+<div class="auth-container">
+  <h1>{% block title %}Welcome Back{% endblock %}</h1>
+  <p class="auth-subtitle">Log in to your account</p>
 
-    <label for="password">Password</label>
-    <input type="password" name="password" id="password" required>
-    
-    <input type="submit" value="Log In">
+  {% for message in get_flashed_messages() %}
+    {% if 'success' in message.lower() or 'created' in message.lower() %}
+      <div class="flash-success">{{ message }}</div>
+    {% else %}
+      <div class="flash-error">{{ message }}</div>
+    {% endif %}
+  {% endfor %}
+
+  <form method="post" class="auth-form">
+    <div class="form-group">
+      <label for="username">Email or Nickname</label>
+      <input 
+        type="text" 
+        name="username" 
+        id="username" 
+        placeholder="Enter your email or nickname"
+        required
+        autocomplete="username">
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input 
+        type="password" 
+        name="password" 
+        id="password" 
+        placeholder="Enter your password"
+        required
+        autocomplete="current-password">
+    </div>
+
+    <div class="checkbox-group">
+      <input type="checkbox" name="remember" id="remember">
+      <label for="remember">Remember me</label>
+    </div>
+
+    <button type="submit" class="btn-primary">Log In</button>
+
+    <div class="auth-links">
+      <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Sign up now</a></p>
+      <p><a href="#" onclick="alert('Password reset feature coming soon!'); return false;">Forgot your password?</a></p>
+    </div>
   </form>
+</div>
 {% endblock %}

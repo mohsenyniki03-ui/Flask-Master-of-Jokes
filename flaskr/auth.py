@@ -1,4 +1,5 @@
 import functools
+import re
 
 from flask import Blueprint
 from flask import flash
@@ -14,6 +15,20 @@ from werkzeug.security import generate_password_hash
 from .db import get_db
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
+
+
+def is_valid_email(email):
+    """Validate email format using regex."""
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
+
+
+def is_valid_nickname(nickname):
+    """Validate nickname: 3-20 characters, alphanumeric and underscores only."""
+    if len(nickname) < 3 or len(nickname) > 20:
+        return False
+    pattern = r'^[a-zA-Z0-9_]+$'
+    return re.match(pattern, nickname) is not None
 
 
 def login_required(view):
@@ -51,18 +66,26 @@ def register():
     password for security.
     """
     if request.method == "POST":
-        username = request.form["username"]
-        nickname = request.form["nickname"]
+        username = request.form["username"].strip()
+        nickname = request.form["nickname"].strip()
         password = request.form["password"]
+        confirm_password = request.form.get("confirm-password", "")
         db = get_db()
         error = None
 
+        # Validation
         if not username:
-            error = "Username is required."
-        elif not password:
-            error = "Password is required."
+            error = "Email address is required."
+        elif not is_valid_email(username):
+            error = "Please enter a valid email address."
         elif not nickname:
             error = "Nickname is required."
+        elif not is_valid_nickname(nickname):
+            error = "Nickname must be 3-20 characters and contain only letters, numbers, and underscores."
+        elif not password:
+            error = "Password is required."
+        elif password != confirm_password:
+            error = "Passwords do not match."
         elif db.execute(
             "SELECT id FROM user WHERE username = ?", (username,)
         ).fetchone() is not None:
@@ -70,19 +93,20 @@ def register():
         elif db.execute(
             "SELECT id FROM user WHERE nickname = ?", (nickname,)
         ).fetchone() is not None:
-            error = f"Nickname {nickname} is already taken."
+            error = f"Nickname '{nickname}' is already taken. Please choose another."
 
         if error is None:
             try:
                 db.execute(
                     "INSERT INTO user (username, nickname, password) VALUES (?, ?, ?)",
-                    (username, nickname, generate_password_hash(password)),
+                    (username, nickname, generate_password_hash(password, method='pbkdf2:sha256')),
                 )
                 db.commit()
             except db.IntegrityError:
-                error = "Database error during registration."
+                error = "An error occurred during registration. Please try again."
             else:
                 # Success, go to the login page.
+                flash("Account created successfully! Please log in.")
                 return redirect(url_for("auth.login"))
 
         flash(error)
@@ -94,20 +118,24 @@ def register():
 def login():
     """Log in a registered user by adding the user id to the session."""
     if request.method == "POST":
-        identifier = request.form["username"] # for email (username) OR nickname
+        identifier = request.form["username"].strip() # for email (username) OR nickname
         password = request.form["password"]
         db = get_db()
         error = None
 
-        user = db.execute(
-            "SELECT * FROM user WHERE username = ? OR nickname = ?", (identifier, identifier)
-        ).fetchone()
+        if not identifier:
+            error = "Email or nickname is required."
+        elif not password:
+            error = "Password is required."
+        else:
+            user = db.execute(
+                "SELECT * FROM user WHERE username = ? OR nickname = ?", (identifier, identifier)
+            ).fetchone()
 
-        if user is None:
-            error = "Incorrect email or nickname."
-        elif not check_password_hash(user["password"], password):
-            error = "Incorrect password."
-        
+            if user is None:
+                error = "Invalid email/nickname or password."
+            elif not check_password_hash(user["password"], password):
+                error = "Invalid email/nickname or password."
 
         if error is None:
             # store the user id in a new session and return to the index
